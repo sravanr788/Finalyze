@@ -5,6 +5,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import passport from 'passport';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 import authRoutes from './routes/authRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
@@ -16,10 +17,11 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(express.json());
 app.use(cors({
-    origin: '*',
+    origin: 'http://localhost:3000',
     credentials: true,
 }));
 app.use(passport.initialize());
+app.use(cookieParser());
 
 // MongoDB Connection
 const mongoURI = process.env.MONGO_URI;

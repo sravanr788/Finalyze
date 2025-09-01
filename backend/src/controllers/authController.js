@@ -31,32 +31,52 @@ passport.use(
         })
 );
 
-export const googleAuth = passport.authenticate('google', {
-    scope: ['profile', 'email']
-});
+export const googleAuth = (req, res, next) => {
+    // Store the returnTo URL in the session
+    const { returnTo } = req.query;
+    if (returnTo) {
+        req.session.returnTo = returnTo;
+    }
+    
+    passport.authenticate('google', {
+        scope: ['profile', 'email'],
+        prompt: 'select_account',
+        accessType: 'offline',
+        session: false
+    })(req, res, next);
+};
+
+const FRONTEND_URL = 'http://localhost:3000';
 
 export const googleAuthCallback = (req, res) => {
     try {
-        // Generate a short-lived access token
+        if (!req.user) {
+            return res.redirect(`${FRONTEND_URL}?error=authentication_failed`);
+        }
+
+        // Generate access token
         const accessToken = jwt.sign(
             { userId: req.user._id, email: req.user.email },
             process.env.JWT_SECRET,
-            { expiresIn: '15m' } // Short expiration time
+            { expiresIn: '1h' }
         );
 
-        // Generate a long-lived refresh token
-        const refreshToken = jwt.sign(
-            { userId: req.user._id },
-            process.env.REFRESH_TOKEN_SECRET,
-            { expiresIn: '7d' } // Long expiration time
-        );
-
-        // Send both tokens back to the client as a JSON response
-        res.status(200).json({
-            message: "Authentication successful.",
-            accessToken,
-            refreshToken
+        // Set HTTP-only cookie
+        res.cookie('token', accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 3600000, // 1 hour
+            path: '/',
+            domain: process.env.NODE_ENV === 'production' ? '.yourdomain.com' : 'localhost'
         });
+
+        // Get the returnTo URL from the original auth request
+        const returnTo = req.session.returnTo || FRONTEND_URL;
+        delete req.session.returnTo;
+
+        // Redirect back to the frontend
+        res.redirect(returnTo);
 
     } catch (error) {
         res.status(500).json({ message: 'Could not generate token.', error: error.message });
@@ -96,19 +116,22 @@ export const refresh = async (req, res) => {
 };
 
 export const logout = (req, res) => {
+    res.clearCookie('token');
     res.status(200).json({ message: 'Successfully logged out.' });
 };
 
 export const getProfile = async (req, res) => {
+    const token = req.cookies.token;
+    if (!token) {
+        return res.status(401).json({ message: 'No token found, authorization denied.' });
+    }
+
     try {
-        const user = await User.findById(req.user.userId); // Corrected this line
-        if (!user) {
-            return res.status(404).json({ message: 'User not found.' });
-        }
+        const user = jwt.verify(token, process.env.JWT_SECRET);
         res.status(200).json({
             message: 'User profile retrieved successfully.',
             user: {
-                id: user._id,
+                id: user.userId,
                 displayName: user.displayName,
                 email: user.email
             }

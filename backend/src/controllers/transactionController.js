@@ -1,25 +1,8 @@
 import Transaction from '../models/Transaction.js';
 
-// AI parsing logic
-// const parseTransaction = async (req, res) => {
-//     try {
-//         const { text } = req.body;
-//         // This is where you will call your AI Service (e.g., aiService.parse(text))
-//         // For now, let's return a sample parsed object
-//         const parsedData = {
-//             amount: 25.50,
-//             category: 'Food',
-//             description: 'Lunch at a cafe',
-//             // Confidence score for auto-categorization could be added here
-//         };
-//         res.status(200).json({ message: 'Transaction parsed successfully.', parsedData });
-//     } catch (error) {
-//         res.status(500).json({ message: 'Failed to parse transaction.', error: error.message });
-//     }
-// };
-// src/controllers/transactionController.js (updated)
 import aiParser from '../services/aiService.js';
 
+// AI parsing logic
 const parseTransaction = async (req, res) => {
     try {
         const { text } = req.body;
@@ -40,12 +23,8 @@ const parseTransaction = async (req, res) => {
 // Create a new transaction
  const createTransaction = async (req, res) => {
     try {
-        const userId = req.user.userId;
-        const { amount, category, description } = req.body;
+        const { amount, category,type,userId, description } = req.body;
         
-        // Determine transaction type based on category
-        const type = (category.toLowerCase() === 'income') ? 'income' : 'expense';
-
         const newTransaction = new Transaction({
             amount,
             category,
@@ -64,7 +43,8 @@ const parseTransaction = async (req, res) => {
 // Get all transactions for the authenticated user
 const getTransactions = async (req, res) => {
     try {
-        const userId = req.user.userId;
+        const {userId} = req.params;
+        console.log(userId);
         const transactions = await Transaction.find({ userId }).sort({ date: -1 });
         res.status(200).json({ message: 'Transactions retrieved successfully.', transactions });
     } catch (error) {
