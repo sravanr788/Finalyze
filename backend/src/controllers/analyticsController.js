@@ -3,8 +3,9 @@ import mongoose from 'mongoose';
 
 // Get a summary of income, expenses, and savings
 export const getFinancialSummary = async (req, res) => {
+    console.log(req.user);
     try {
-        const userId = new mongoose.Types.ObjectId(req.user.userId); 
+        const userId = req.user._id; 
         
         const result = await Transaction.aggregate([
             { $match: { userId } },
@@ -22,6 +23,7 @@ export const getFinancialSummary = async (req, res) => {
 
         // Initialize with default values
         const summary = {
+            userId: userId,
             totalIncome: 0,
             totalExpenses: 0,
             savings: 0
@@ -54,7 +56,7 @@ export const getFinancialSummary = async (req, res) => {
 // Get spending grouped by category for the pie chart
 export const getSpendingByCategory = async (req, res) => {
     try {
-        const userId = new mongoose.Types.ObjectId(req.user.userId); 
+        const userId = new mongoose.Types.ObjectId(req.user._id); 
         const { startDate, endDate } = req.query;
         
         const matchStage = { 
@@ -104,7 +106,7 @@ export const getSpendingByCategory = async (req, res) => {
 // Get spending trends over time for the line chart
 export const getSpendingTrends = async (req, res) => {
     try {
-        const userId = new mongoose.Types.ObjectId(req.user.userId); 
+        const userId = new mongoose.Types.ObjectId(req.user._id); 
         const { period = 'monthly', category } = req.query; // period can be 'daily', 'weekly', 'monthly', 'yearly'
         const { startDate, endDate } = req.query;
         

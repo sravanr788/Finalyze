@@ -11,74 +11,114 @@ passport.use(
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: '/auth/google/callback'
     },
-        async (accessToken, refreshToken, profile, done) => {
-            try {
-                let user = await User.findOne({ googleId: profile.id });
-                if (user) {
-                    done(null, user);
-                } else {
-                    user = await User.create({
-                        googleId: profile.id,
-                        displayName: profile.displayName,
-                        email: profile.emails[0].value,
-                    });
-                    done(null, user);
-                }
-            } catch (error) {
-                console.error('Passport Google Strategy Error:', error);
-                done(error, null);
-            }
-        })
+    async (accessToken, refreshToken, profile, done) => {
+        try {
+          // Find or create user in DB
+          let user = await User.findOne({ googleId: profile.id });
+  
+          if (!user) {
+            user = await User.create({
+              googleId: profile.id,
+              displayName: profile.displayName,
+              email: profile.emails?.[0]?.value,
+              picture: profile.photos?.[0]?.value,
+            });
+          }
+  
+          return done(null, user);
+        } catch (err) {
+          return done(err, null);
+        }
+      }
+    )
 );
 
-export const googleAuth = (req, res, next) => {
-    // Store the returnTo URL in the session
-    const { returnTo } = req.query;
-    if (returnTo) {
-        req.session.returnTo = returnTo;
+passport.serializeUser((user, done) => {
+    done(null, user.id); // serialize by Mongo ID
+  });
+  
+passport.deserializeUser(async (id, done) => {
+    try {
+      const user = await User.findById(id);
+      done(null, user);
+    } catch (err) {
+      done(err, null);
     }
-    
-    passport.authenticate('google', {
-        scope: ['profile', 'email'],
-        prompt: 'select_account',
-        accessType: 'offline',
-        session: false
-    })(req, res, next);
-};
+  });
 
-const FRONTEND_URL = 'http://localhost:3000';
+export const googleAuth = passport.authenticate("google", {
+    scope: ['profile', 'email'],
+    prompt: 'select_account',
+});
+
+const FRONTEND_URL = process.env.FRONTEND_URL + '/dashboard';
+
+// export const googleAuthCallback = (req, res) => {
+//     try {
+//         // Generate a short-lived access token
+//         const accessToken = jwt.sign(
+//             { userId: req.user._id, email: req.user.email },
+//             process.env.JWT_SECRET,
+//             { expiresIn: '15m' } // Short expiration time
+//         );
+
+//         // Generate a long-lived refresh token
+//         const refreshToken = jwt.sign(
+//             { userId: req.user._id },
+//             process.env.REFRESH_TOKEN_SECRET,
+//             { expiresIn: '7d' } // Long expiration time
+//         );
+
+//         // Send both tokens back to the client as a JSON response
+//         res.status(200).json({
+//             message: "Authentication successful.",
+//             accessToken,
+//             refreshToken
+//         });
+//         // res.cookie('accessToken', accessToken, {
+//         //     httpOnly: true, // Prevents JavaScript from accessing the cookie
+//         //     secure: true,   // Only send over HTTPS in production
+//         //     sameSite: 'strict', // Prevents CSRF attacks
+//         //     maxAge: 3600000 // Expires in 1 hour
+//         //   });
+        
+//         //   res.redirect(FRONTEND_URL);
+
+//     } catch (error) {
+//         res.status(500).json({ message: 'Could not generate token.', error: error.message });
+//     }
+// };
 
 export const googleAuthCallback = (req, res) => {
+    console.log("Google callback hit");
+    // console.log("req.user:", req.user);  // 👈 check if user is coming through
+
     try {
         if (!req.user) {
-            return res.redirect(`${FRONTEND_URL}?error=authentication_failed`);
+            return res.status(401).json({ message: "No user returned from Google." });
         }
 
-        // Generate access token
         const accessToken = jwt.sign(
-            { userId: req.user._id, email: req.user.email },
+            { userId: req.user._id },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
 
-        // Set HTTP-only cookie
-        res.cookie('token', accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 3600000, // 1 hour
-            path: '/',
-            domain: process.env.NODE_ENV === 'production' ? '.yourdomain.com' : 'localhost'
-        });
+        const refreshToken = jwt.sign(
+            { userId: req.user._id },
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: '7d' }
+        );
 
-        // Get the returnTo URL from the original auth request
-        const returnTo = req.session.returnTo || FRONTEND_URL;
-        delete req.session.returnTo;
-
-        // Redirect back to the frontend
-        res.redirect(returnTo);
-
+        res.cookie('accessToken', accessToken, {
+            httpOnly: true, // Prevents JavaScript from accessing the cookie
+            secure: true,   // Only send over HTTPS in production
+            sameSite: 'strict', // Prevents CSRF attacks
+            maxAge: 3600000 // Expires in 1 hour
+          });
+        res.redirect(FRONTEND_URL);
     } catch (error) {
+        console.error("Callback error:", error);
         res.status(500).json({ message: 'Could not generate token.', error: error.message });
     }
 };
@@ -116,22 +156,20 @@ export const refresh = async (req, res) => {
 };
 
 export const logout = (req, res) => {
-    res.clearCookie('token');
+    res.clearCookie('accessToken');
     res.status(200).json({ message: 'Successfully logged out.' });
 };
 
 export const getProfile = async (req, res) => {
-    const token = req.cookies.token;
-    if (!token) {
-        return res.status(401).json({ message: 'No token found, authorization denied.' });
-    }
-
     try {
-        const user = jwt.verify(token, process.env.JWT_SECRET);
+        const user = req.user;
+        if (!user) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
         res.status(200).json({
             message: 'User profile retrieved successfully.',
             user: {
-                id: user.userId,
+                id: user._id,
                 displayName: user.displayName,
                 email: user.email
             }

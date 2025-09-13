@@ -1,6 +1,7 @@
 import Transaction from '../models/Transaction.js';
 
 import aiParser from '../services/aiService.js';
+import resolveDate from '../services/dateResolver.js';
 
 // AI parsing logic
 const parseTransaction = async (req, res) => {
@@ -12,7 +13,7 @@ const parseTransaction = async (req, res) => {
         }
 
         // Call the AI service to parse the text
-        const parsedData = await aiParser(text);
+        const parsedData = await aiParser(text , new Date().toISOString().split("T")[0]);
 
         res.status(200).json({ message: 'Transaction parsed successfully.', parsedData });
     } catch (error) {
@@ -23,7 +24,7 @@ const parseTransaction = async (req, res) => {
 // Create a new transaction
  const createTransaction = async (req, res) => {
     try {
-        const { amount, category,type,userId, description } = req.body;
+        const { amount, category,type,userId,date, description,originalText } = req.body;
         
         const newTransaction = new Transaction({
             amount,
@@ -31,6 +32,7 @@ const parseTransaction = async (req, res) => {
             description,
             type,
             userId,
+            date: resolveDate(originalText || description, date)
         });
 
         const savedTransaction = await newTransaction.save();
@@ -43,8 +45,7 @@ const parseTransaction = async (req, res) => {
 // Get all transactions for the authenticated user
 const getTransactions = async (req, res) => {
     try {
-        const {userId} = req.params;
-        console.log(userId);
+        const {userId} = req.query;
         const transactions = await Transaction.find({ userId }).sort({ date: -1 });
         res.status(200).json({ message: 'Transactions retrieved successfully.', transactions });
     } catch (error) {
