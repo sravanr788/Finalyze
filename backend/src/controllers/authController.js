@@ -51,7 +51,7 @@ export const googleAuth = passport.authenticate("google", {
     prompt: 'select_account',
 });
 
-const FRONTEND_URL = 'http://localhost:3000/dashboard';
+const FRONTEND_URL = process.env.FRONTEND_URL + '/dashboard';
 
 // export const googleAuthCallback = (req, res) => {
 //     try {

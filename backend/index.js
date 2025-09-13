@@ -8,16 +8,16 @@ import cors from 'cors';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 
-import authRoutes from './routes/authRoutes.js';
-import analyticsRoutes from './routes/analyticsRoutes.js';
-import transactionRoutes from './routes/TransactionRoutes.js';
+import authRoutes from './src/routes/authRoutes.js';
+import analyticsRoutes from './src/routes/analyticsRoutes.js';
+import transactionRoutes from './src/routes/TransactionRoutes.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-    origin: 'http://localhost:3000',
+    origin: ['http://localhost:3000',process.env.FRONTEND_URL],
     credentials: true,
 }));
 app.use(express.json());
