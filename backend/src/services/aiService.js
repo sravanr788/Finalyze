@@ -1,7 +1,6 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
+import { GoogleGenAI } from '@google/genai';
 // Access API key from environment variables
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI = new GoogleGenAI({ apiKey : process.env.GEMINI_API_KEY });
 
 // core prompt for the AI to follow
 const PROMPT_TEMPLATE = (text, today) => `
@@ -43,10 +42,13 @@ Here is the transaction text: "${text}"
 // Main function to parse the transaction using the AI
 const aiParser = async (text,today) => {
   try {
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-      const result = await model.generateContent(PROMPT_TEMPLATE(text, today));
-      
-      const responseText = result.response.text();
+      const response = await genAI.models.generateContent({
+        model: 'gemini-2.0-flash-001',
+        contents: PROMPT_TEMPLATE(text, today),
+      });
+
+      const responseText = response.text;
+      console.log(responseText);
       const cleanedText = responseText.replace(/```json\n|```/g, '').trim();
 
       const parsedData = JSON.parse(cleanedText);

@@ -1,10 +1,11 @@
 import Transaction from '../models/Transaction.js';
-
+import { connectToDatabase } from '../../db.js';
 import aiParser from '../services/aiService.js';
 import resolveDate from '../services/dateResolver.js';
 
 // AI parsing logic
 const parseTransaction = async (req, res) => {
+    await connectToDatabase();
     try {
         const { text } = req.body;
         
@@ -23,6 +24,7 @@ const parseTransaction = async (req, res) => {
 
 // Create a new transaction
  const createTransaction = async (req, res) => {
+    await connectToDatabase();
     try {
         const { amount, category,type,userId,date, description,originalText } = req.body;
         
@@ -44,6 +46,7 @@ const parseTransaction = async (req, res) => {
 
 // Get all transactions for the authenticated user
 const getTransactions = async (req, res) => {
+    await connectToDatabase();
     try {
         const {userId} = req.query;
         const transactions = await Transaction.find({ userId }).sort({ date: -1 });
@@ -55,6 +58,7 @@ const getTransactions = async (req, res) => {
 
 // Update a specific transaction
 const updateTransaction = async (req, res) => {
+    await connectToDatabase();
     try {
         const transactionId = req.params.id;
         const updatedTransaction = await Transaction.findByIdAndUpdate(
@@ -73,6 +77,7 @@ const updateTransaction = async (req, res) => {
 
 // Delete a specific transaction
 const deleteTransaction = async (req, res) => {
+    await connectToDatabase();
     try {
         const transactionId = req.params.id;
         const deletedTransaction = await Transaction.findByIdAndDelete(transactionId);

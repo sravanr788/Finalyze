@@ -1,32 +1,121 @@
-import React, { useState } from 'react';
-import { Transaction } from '../types';
-import { deleteTransaction } from '../utils/storage';
-import { Edit2, Trash2, ArrowRight } from 'lucide-react';
-import { format } from 'date-fns';
+import React, { useState } from "react";
+import { Transaction } from "../types";
+import { Edit2, Trash2, ArrowRight } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import EditModal from "./EditModal";
+import { toast } from "sonner";
 
 interface Props {
   transactions: Transaction[];
   onTransactionUpdated: () => void;
   showViewAll?: boolean;
+  setActiveTab?: (tab: "overview" | "transactions" | "analytics") => void;
 }
 
-const TransactionList: React.FC<Props> = ({ transactions, onTransactionUpdated, showViewAll }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+const TransactionList: React.FC<Props> = ({
+  transactions,
+  onTransactionUpdated,
+  showViewAll,
+  setActiveTab,
+}) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [editingTransaction, setEditingTransaction] =
+    useState<Transaction | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    description: "",
+    amount: "",
+    category: "",
+    type: "expense",
+    date: "",
+  });
 
-  const categories = Array.from(new Set(transactions.map(t => t.category)));
+  const categories = Array.from(new Set(transactions.map((t) => t.category)));
 
-  const filteredTransactions = transactions.filter(transaction => {
-    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         transaction.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || transaction.category === selectedCategory;
+  const filteredTransactions = transactions.filter((transaction) => {
+    const matchesSearch =
+      transaction.description
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      transaction.category.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory =
+      !selectedCategory || transaction.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const handleDelete = (id: string) => {
-    deleteTransaction(id);
-    console.log(id);
-    onTransactionUpdated();
+  const { getApi } = useAuth();
+  const api = getApi();
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this transaction?")) return;
+    try {
+      await api.delete(`/api/transactions/${id}`);
+      toast.success("Transaction deleted successfully");
+      onTransactionUpdated();
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      toast.error("Failed to delete transaction. Please try again.");
+    }
+  };
+
+  const handleEditClick = (transaction: Transaction) => {
+    setEditingTransaction(transaction);
+    const transactionDate = new Date(transaction.date);
+    const formattedDate = transactionDate.toISOString().split("T")[0]; // "2025-09-01"
+
+    setFormData({
+      description: transaction.description,
+      amount: transaction.amount.toString(),
+      category: transaction.category,
+      type: transaction.type,
+      date: formattedDate,
+    });
+    setIsEditing(true);
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "amount" ? value.replace(/[^0-9.]/g, "") : value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTransaction) return;
+
+    try {
+      const transactionData = {
+        ...formData,
+        amount: Number(formData.amount),
+        date: new Date(formData.date).toISOString(),
+      };
+
+      await api.put(
+        `/api/transactions/${editingTransaction._id}`,
+        transactionData
+      );
+
+      toast.success("Transaction updated successfully");
+      setIsEditing(false);
+      onTransactionUpdated();
+    } catch (error: any) {
+      console.error(
+        "Error updating transaction:",
+        error.response?.data || error.message
+      );
+      toast.error(
+        `Failed to update transaction: ${
+          error.response?.data?.message || "Please try again"
+        }`
+      );
+    }
   };
 
   return (
@@ -36,7 +125,12 @@ const TransactionList: React.FC<Props> = ({ transactions, onTransactionUpdated, 
           Recent Transactions
         </h2>
         {showViewAll && (
-          <button className="flex items-center text-[#e05b19] hover:text-[#d14d0f] font-medium transition-colors duration-200">
+          <button
+            className="flex items-center text-[#e05b19] hover:text-[#d14d0f] font-medium transition-colors duration-200"
+            onClick={() => {
+              setActiveTab?.("transactions");
+            }}
+          >
             View All
             <ArrowRight className="h-4 w-4 ml-1" />
           </button>
@@ -58,21 +152,25 @@ const TransactionList: React.FC<Props> = ({ transactions, onTransactionUpdated, 
             className="p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#16191f] text-gray-900 dark:text-white focus:ring-2 focus:ring-[#e05b19] focus:border-transparent"
           >
             <option value="">All Categories</option>
-            {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
             ))}
           </select>
         </div>
       )}
 
-      <div className="space-y-3 max-h-96 overflow-y-auto">
+      <div className="space-y-3 max-h-96 overflow-y-hidden">
         {filteredTransactions.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-500 dark:text-gray-400">No transactions found</p>
+            <p className="text-gray-500 dark:text-gray-400">
+              No transactions found
+            </p>
           </div>
         ) : (
           filteredTransactions.map((transaction) => (
-            <div 
+            <div
               key={transaction._id}
               className="flex items-center justify-between p-4 bg-gray-50 dark:bg-[#16191f] rounded-lg border border-gray-100 dark:border-gray-600 hover:shadow-sm transition-shadow duration-200"
             >
@@ -81,12 +179,14 @@ const TransactionList: React.FC<Props> = ({ transactions, onTransactionUpdated, 
                   <h3 className="font-medium text-gray-900 dark:text-white">
                     {transaction.description}
                   </h3>
-                  <span className={`font-bold ${
-                    transaction.type === 'income' 
-                      ? 'text-green-600 dark:text-green-400' 
-                      : 'text-red-600 dark:text-red-400'
-                  }`}>
-                    {transaction.type === 'income' ? '+' : '-'}${transaction.amount.toFixed(2)}
+                  <span
+                    className={`font-bold ${
+                      transaction.type === "income"
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400"
+                    }`}
+                  >
+                    ₹{transaction.amount.toLocaleString("en-IN")}
                   </span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
@@ -94,18 +194,27 @@ const TransactionList: React.FC<Props> = ({ transactions, onTransactionUpdated, 
                     {transaction.category}
                   </span>
                   <span className="text-gray-500 dark:text-gray-400">
-                    {format(transaction.date, 'MMM dd, yyyy')}
+                    {new Date(transaction.date).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
                   </span>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-2 ml-4">
-                <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors duration-200">
+                <button
+                  title="edit"
+                  onClick={() => handleEditClick(transaction)}
+                  className="p-2 hover:cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors duration-200"
+                >
                   <Edit2 className="h-4 w-4" />
                 </button>
-                <button 
+                <button
+                  title="delete"
                   onClick={() => handleDelete(transaction._id)}
-                  className="p-2 text-gray-400 hover:text-red-600 transition-colors duration-200"
+                  className="p-2 hover:cursor-pointer hover:text-red-600 text-red-400 transition-colors duration-200"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -114,6 +223,14 @@ const TransactionList: React.FC<Props> = ({ transactions, onTransactionUpdated, 
           ))
         )}
       </div>
+      {isEditing && (
+        <EditModal
+          formData={formData}
+          handleInputChange={handleInputChange}
+          handleSubmit={handleSubmit}
+          setIsEditing={setIsEditing}
+        />
+      )}
     </div>
   );
 };

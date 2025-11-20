@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Transaction } from '../types';
+import { toast } from 'sonner';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -13,6 +14,7 @@ import {
 } from 'chart.js';
 import { Line, Pie } from 'react-chartjs-2';
 import { format, subDays, startOfDay } from 'date-fns';
+import LoadingSpinner from './ui/LoadingSpinner';
 
 ChartJS.register(
   CategoryScale,
@@ -30,13 +32,80 @@ interface Props {
 }
 
 const Analytics: React.FC<Props> = ({ transactions }) => {
-  const expenses = transactions.filter(t => t.type === 'expense');
-  
-  // Category spending data
-  const categoryData = expenses.reduce((acc, transaction) => {
-    acc[transaction.category] = (acc[transaction.category] || 0) + transaction.amount;
-    return acc;
-  }, {} as Record<string, number>);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [chartData, setChartData] = useState<{
+    categoryData: Record<string, number>;
+    timeData: { labels: string[]; amounts: number[] };
+  } | null>(null);
+
+  useEffect(() => {
+    const processData = () => {
+      try {
+        const expenses = transactions.filter(t => t.type === 'expense');
+        
+        // Category spending data
+        const categoryData = expenses.reduce((acc, transaction) => {
+          acc[transaction.category] = (acc[transaction.category] || 0) + transaction.amount;
+          return acc;
+        }, {} as Record<string, number>);
+
+        // Time-based data (last 7 days)
+        const today = startOfDay(new Date());
+        const timeData = {
+          labels: Array(7).fill(0).map((_, i) => {
+            const date = subDays(today, 6 - i);
+            return format(date, 'EEE');
+          }),
+          amounts: Array(7).fill(0)
+        };
+
+        expenses.forEach(transaction => {
+          const date = new Date(transaction.date);
+          const diffInDays = Math.floor((today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+          if (diffInDays >= 0 && diffInDays < 7) {
+            timeData.amounts[6 - diffInDays] += transaction.amount;
+          }
+        });
+
+        setChartData({ categoryData, timeData });
+        setError(null);
+      } catch (err) {
+        console.error('Error processing analytics data:', err);
+        setError('Failed to process analytics data');
+        toast.error('Failed to load analytics. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    setIsLoading(true);
+    processData();
+  }, [transactions]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <LoadingSpinner size="md" />
+      </div>
+    );
+  }
+
+  if (error || !chartData) {
+    return (
+      <div className="text-center p-8 text-red-500 dark:text-red-400">
+        <p>Failed to load analytics data.</p>
+        <button 
+          onClick={() => window.location.reload()}
+          className="mt-2 text-sm text-[#e05b19] hover:underline"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+
+  const { categoryData } = chartData;
 
   const pieData = {
     labels: Object.keys(categoryData),
@@ -62,9 +131,9 @@ const Analytics: React.FC<Props> = ({ transactions }) => {
   // Daily spending trend
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const date = startOfDay(subDays(new Date(), 6 - i));
-    const dayExpenses = expenses
-      .filter(t => startOfDay(t.date).getTime() === date.getTime())
-      .reduce((sum, t) => sum + t.amount, 0);
+    const dayExpenses = transactions
+      .filter((t: Transaction) => t.type === 'expense' && startOfDay(new Date(t.date)).getTime() === date.getTime())
+      .reduce((sum: number, t: Transaction) => sum + t.amount, 0);
     return {
       date,
       amount: dayExpenses

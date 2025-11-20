@@ -36,12 +36,6 @@ app.use('/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/analytics', analyticsRoutes);
 
-// MongoDB Connection
-const mongoURI = process.env.MONGO_URI;
-mongoose.connect(mongoURI)
-    .then(() => console.log('MongoDB connected successfully'))
-    .catch(err => console.error('MongoDB connection error:', err));
-
 // Server Setup
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);

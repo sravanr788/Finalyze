@@ -2,12 +2,29 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { BarChart3, Brain, Shield, TrendingUp, Moon, Sun, MessageSquare, Zap, ArrowRight, CheckCircle, Play } from 'lucide-react';
-import GoogleLoginButton from './auth/GoogleLoginButton';
+import { toast } from 'sonner';
+import LoadingSpinner from './ui/LoadingSpinner';
 
 const Landing: React.FC = () => {
   const { signIn, loading } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
+
+  const handleSignIn = async () => {
+    try {
+      await signIn();
+      toast.success('Signed in successfully!');
+    } catch (error) {
+      console.error('Error signing in:', error);
+      toast.error('Failed to sign in. Please try again.');
+    }
+  };
+
+  const handleThemeToggle = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    toggleTheme();
+    toast.success(`Switched to ${newTheme} mode`);
+  };
 
   useEffect(() => {
     setIsVisible(true);
@@ -17,7 +34,7 @@ const Landing: React.FC = () => {
     {
       icon: Brain,
       title: 'AI-Powered Parsing',
-      description: 'Simply type "Bought coffee for $5" and watch AI categorize it automatically',
+      description: 'Simply type "Bought coffee for ₹5" and watch AI categorize it automatically',
       color: 'from-purple-500 to-pink-500'
     },
     {
@@ -50,7 +67,7 @@ const Landing: React.FC = () => {
     {
       step: 2,
       title: 'Add Transactions Naturally',
-      description: 'Type in plain English like "Bought lunch for $12" and our AI will parse and categorize it.',
+      description: 'Type in plain English like "Bought lunch for ₹12" and our AI will parse and categorize it.',
       icon: MessageSquare
     },
     {
@@ -65,7 +82,7 @@ const Landing: React.FC = () => {
     {
       name: 'Sarah Chen',
       role: 'Product Manager',
-      content: 'FinanceAI has completely transformed how I track my expenses. The natural language input is a game-changer!',
+      content: 'Finalyze has completely transformed how I track my expenses. The natural language input is a game-changer!',
       avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=150'
     },
     {
@@ -88,11 +105,11 @@ const Landing: React.FC = () => {
       <nav className="flex items-center justify-between p-6 max-w-7xl mx-auto relative z-10">
         <div className={`flex items-center space-x-2 transform transition-all duration-700 ${isVisible ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'}`}>
           <BarChart3 className="h-8 w-8 text-[#e05b19]" />
-          <span className="text-2xl font-bold text-gray-900 dark:text-white">FinanceAI</span>
+          <span className="text-2xl font-bold text-gray-900 dark:text-white">Finalyze</span>
         </div>
         
         <button
-          onClick={toggleTheme}
+          onClick={handleThemeToggle}
           className={`p-3 rounded-xl bg-white dark:bg-[#1f2226] shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'}`}
           style={{ transitionDelay: '200ms' }}
         >
@@ -115,14 +132,14 @@ const Landing: React.FC = () => {
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
             Track expenses with natural language, get AI-powered insights, and take control of your finances with beautiful visualizations.
           </p>
-          <GoogleLoginButton />
-          {/* <button
+          
+          <button
             onClick={signIn}
             disabled={loading}
             className="group inline-flex items-center px-8 py-4 bg-[#e05b19] hover:bg-[#d14d0f] text-white font-semibold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-lg"
           >
             {loading ? (
-              <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mr-3" />
+              <LoadingSpinner size="md" />
             ) : (
               <svg className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -133,7 +150,7 @@ const Landing: React.FC = () => {
             )}
             Continue with Google
             <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" />
-          </button> */}
+          </button>
         </div>
 
         {/* Features Grid */}
@@ -142,7 +159,7 @@ const Landing: React.FC = () => {
             <div 
               key={index}
               className={`group bg-white dark:bg-[#1f2226] p-8 rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100 dark:border-gray-700 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
-              style={{ transitionDelay: `${300 + index * 100}ms` }}
+              style={{ transitionDelay: `300 + index * 100}ms` }}
             >
               <div className={`p-4 rounded-xl bg-gradient-to-r ${feature.color} mb-6 w-fit group-hover:scale-110 transition-transform duration-300`}>
                 <feature.icon className="h-8 w-8 text-white" />
@@ -218,11 +235,11 @@ const Landing: React.FC = () => {
                 </h3>
                 <div className="space-y-3">
                   {[
-                    '"Bought coffee at Starbucks for $6.50"',
-                    '"Got my $3500 salary today"',
-                    '"Spent $45 on gas at Shell"',
-                    '"Ordered Panda Express for $25"',
-                    '"Samsung Galaxy watch $250"'
+                    '"Bought coffee at Starbucks for ₹6.50"',
+                    '"Got my ₹3500 salary today"',
+                    '"Spent ₹45 on gas at Shell"',
+                    '"Ordered Panda Express for ₹25"',
+                    '"Samsung Galaxy watch ₹250"'
                   ].map((example, index) => (
                     <div 
                       key={index}
@@ -242,11 +259,11 @@ const Landing: React.FC = () => {
                 </h3>
                 <div className="space-y-3">
                   {[
-                    { category: 'Food & Dining', amount: '$6.50', confidence: '95%' },
-                    { category: 'Income', amount: '+$3,500', confidence: '98%' },
-                    { category: 'Transportation', amount: '$45.00', confidence: '92%' },
-                    { category: 'Food & Dining', amount: '$25.00', confidence: '89%' },
-                    { category: 'Electronics', amount: '$250.00', confidence: '96%' }
+                    { category: 'Food & Dining', amount: '₹6.50', confidence: '95%' },
+                    { category: 'Income', amount: '+₹3,500', confidence: '98%' },
+                    { category: 'Transportation', amount: '₹45.00', confidence: '92%' },
+                    { category: 'Food & Dining', amount: '₹25.00', confidence: '89%' },
+                    { category: 'Electronics', amount: '₹250.00', confidence: '96%' }
                   ].map((result, index) => (
                     <div 
                       key={index}
@@ -348,7 +365,7 @@ const Landing: React.FC = () => {
             </p>
             
             <button
-              onClick={signIn}
+              onClick={handleSignIn}
               disabled={loading}
               className="group inline-flex items-center px-10 py-5 bg-[#e05b19] hover:bg-[#d14d0f] text-white font-bold rounded-xl shadow-lg hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-xl"
             >
@@ -373,10 +390,10 @@ const Landing: React.FC = () => {
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
               <BarChart3 className="h-6 w-6 text-[#e05b19]" />
-              <span className="text-lg font-bold text-gray-900 dark:text-white">FinanceAI</span>
+              <span className="text-lg font-bold text-gray-900 dark:text-white">Finalyze</span>
             </div>
             <p className="text-gray-500 dark:text-gray-400 text-center md:text-right">
-              © 2025 FinanceAI. Built with AI-powered intelligence.
+              © 2025 Finalyze. Built with AI-powered intelligence.
             </p>
           </div>
         </div>

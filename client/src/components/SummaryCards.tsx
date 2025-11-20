@@ -32,20 +32,20 @@ const SummaryCards: React.FC<Props> = ({ transactions = [] }) => {
 
   const cards = [
     {
-      title: 'Monthly Income',
+      title: 'Income',
       value: totalIncome,
       icon: TrendingUp,
       color: 'text-green-600 dark:text-green-400',
       bgColor: 'bg-green-50 dark:bg-green-900/20',
-      prefix: '+$'
+      prefix: '+₹'
     },
     {
-      title: 'Monthly Expenses',
+      title: 'Expenses',
       value: totalExpenses,
       icon: TrendingDown,
       color: 'text-red-600 dark:text-red-400',
       bgColor: 'bg-red-50 dark:bg-red-900/20',
-      prefix: '-$'
+      prefix: '-₹'
     },
     {
       title: 'Net Savings',
@@ -53,7 +53,7 @@ const SummaryCards: React.FC<Props> = ({ transactions = [] }) => {
       icon: PiggyBank,
       color: savings >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400',
       bgColor: savings >= 0 ? 'bg-green-50 dark:bg-green-900/20' : 'bg-red-50 dark:bg-red-900/20',
-      prefix: savings >= 0 ? '+$' : '-$'
+      prefix: savings >= 0 ? '+₹' : '-₹'
     },
     {
       title: 'Transactions',

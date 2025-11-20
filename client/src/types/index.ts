@@ -2,6 +2,7 @@ export interface User {
   id: string;
   displayName: string;
   email: string;
+  picture: string;
 }
 
 export interface Transaction {
@@ -21,6 +22,7 @@ export interface ParsedTransaction {
   category: string;
   type: 'income' | 'expense';
   confidence: number;
+  date: Date;
 }
 
 export interface SpendingInsight {

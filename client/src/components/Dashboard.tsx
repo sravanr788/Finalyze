@@ -7,37 +7,62 @@ import TransactionEntry from './TransactionEntry';
 import TransactionList from './TransactionList';
 import Analytics from './Analytics';
 import SummaryCards from './SummaryCards';
+import { toast } from 'sonner';
+import LoadingSpinner from './ui/LoadingSpinner';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'transactions' | 'analytics'>('overview');
 
 
   useEffect(() => {
     const fetchTransactions = async () => {
-      if (user) {
+      if (!user) return;
+      
+      setIsLoading(true);
         try {
           const userTransactions = await getTransactions(user.id);
           setTransactions(userTransactions);
+          if (userTransactions.length === 0) {
+            toast.info('No transactions found. Add your first transaction to get started!');
+          }
         } catch (error) {
-          console.error('Failed to fetch transactions:', error);
-        }
+          console.error('Error fetching transactions:', error);
+          toast.error('Failed to load transactions. Please refresh the page to try again.');
+      } finally {
+        setIsLoading(false);
       }
     };
+    
     fetchTransactions();
   }, [user]);
 
   const refreshTransactions = async () => {
-    if (user) {
+    if (!user) return;
+    
+    setIsLoading(true);
       try {
         const userTransactions = await getTransactions(user.id);
         setTransactions(userTransactions);
+        toast.success('Transactions refreshed successfully');
       } catch (error) {
-        console.error('Failed to refresh transactions:', error);
-      }
+        console.error('Error refreshing transactions:', error);
+        toast.error('Failed to refresh transactions. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-[#16191f] flex flex-col items-center justify-center gap-4">
+        <LoadingSpinner size="lg" />
+        <p className="text-gray-600 dark:text-gray-300 text-sm font-medium">Loading your transactions...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#16191f] transition-colors duration-300">
@@ -80,6 +105,7 @@ const Dashboard: React.FC = () => {
                   transactions={transactions.slice(0, 5)} 
                   onTransactionUpdated={refreshTransactions}
                   showViewAll
+                  setActiveTab={setActiveTab}
                 />
               </div>
             </>

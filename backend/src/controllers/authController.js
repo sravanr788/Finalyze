@@ -3,17 +3,18 @@ import jwt from 'jsonwebtoken';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../models/User.js';
 import mongoose from 'mongoose';
-
+import { connectToDatabase } from '../../db.js';
 // Passport Configuration
 passport.use(
     new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: '/auth/google/callback'
+        callbackURL: process.env.BACKEND_URL + '/auth/google/callback'
     },
     async (accessToken, refreshToken, profile, done) => {
         try {
           // Find or create user in DB
+          await connectToDatabase();
           let user = await User.findOne({ googleId: profile.id });
   
           if (!user) {
@@ -51,52 +52,21 @@ export const googleAuth = passport.authenticate("google", {
     prompt: 'select_account',
 });
 
-const FRONTEND_URL = process.env.FRONTEND_URL + '/dashboard';
-
-// export const googleAuthCallback = (req, res) => {
-//     try {
-//         // Generate a short-lived access token
-//         const accessToken = jwt.sign(
-//             { userId: req.user._id, email: req.user.email },
-//             process.env.JWT_SECRET,
-//             { expiresIn: '15m' } // Short expiration time
-//         );
-
-//         // Generate a long-lived refresh token
-//         const refreshToken = jwt.sign(
-//             { userId: req.user._id },
-//             process.env.REFRESH_TOKEN_SECRET,
-//             { expiresIn: '7d' } // Long expiration time
-//         );
-
-//         // Send both tokens back to the client as a JSON response
-//         res.status(200).json({
-//             message: "Authentication successful.",
-//             accessToken,
-//             refreshToken
-//         });
-//         // res.cookie('accessToken', accessToken, {
-//         //     httpOnly: true, // Prevents JavaScript from accessing the cookie
-//         //     secure: true,   // Only send over HTTPS in production
-//         //     sameSite: 'strict', // Prevents CSRF attacks
-//         //     maxAge: 3600000 // Expires in 1 hour
-//         //   });
-        
-//         //   res.redirect(FRONTEND_URL);
-
-//     } catch (error) {
-//         res.status(500).json({ message: 'Could not generate token.', error: error.message });
-//     }
-// };
-
-export const googleAuthCallback = (req, res) => {
+export const googleAuthCallback = async (req, res) => {
+    await connectToDatabase();
     console.log("Google callback hit");
-    // console.log("req.user:", req.user);  // 👈 check if user is coming through
-
     try {
         if (!req.user) {
             return res.status(401).json({ message: "No user returned from Google." });
         }
+
+            // Make sure user has required fields
+    const userId = req.user._id;
+    const email = req.user.email;
+    if (!userId || !email) {
+      console.error("Google callback: user missing _id or email", req.user);
+      return res.status(500).json({ message: "User data incomplete." });
+    }
 
         const accessToken = jwt.sign(
             { userId: req.user._id },
@@ -112,19 +82,31 @@ export const googleAuthCallback = (req, res) => {
 
         res.cookie('accessToken', accessToken, {
             httpOnly: true, // Prevents JavaScript from accessing the cookie
-            secure: true,   // Only send over HTTPS in production
-            sameSite: 'strict', // Prevents CSRF attacks
+            sameSite: 'none',
+            secure: true,
             maxAge: 3600000 // Expires in 1 hour
           });
-        res.redirect(FRONTEND_URL);
+        
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            sameSite: 'none',
+            secure: true,
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+        });
+
+        return res.redirect(process.env.FRONTEND_URL + '/dashboard');
     } catch (error) {
         console.error("Callback error:", error);
-        res.status(500).json({ message: 'Could not generate token.', error: error.message });
+        res.status(500).json({
+            message: 'Could not generate token.',
+            error: error.message
+        });
     }
 };
 
 export const refresh = async (req, res) => {
-    const { refreshToken } = req.body;
+    await connectToDatabase();
+    const refreshToken = req.cookies?.refreshToken;
 
     if (!refreshToken) {
         return res.status(401).json({ message: 'Refresh Token not found.' });
@@ -139,15 +121,22 @@ export const refresh = async (req, res) => {
             return res.status(401).json({ message: 'Invalid refresh token.' });
         }
 
-        const accessToken = jwt.sign(
+        const newAccessToken = jwt.sign(
             { userId: user._id, email: user.email },
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
 
+        res.cookie('accessToken', newAccessToken, {
+            httpOnly: true,
+            sameSite: 'none',
+            secure: true,
+            maxAge: 15 * 60 * 1000
+        });
+
+
         res.status(200).json({
             message: 'Token refreshed successfully.',
-            accessToken,
         });
 
     } catch (error) {
@@ -157,6 +146,7 @@ export const refresh = async (req, res) => {
 
 export const logout = (req, res) => {
     res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
     res.status(200).json({ message: 'Successfully logged out.' });
 };
 
