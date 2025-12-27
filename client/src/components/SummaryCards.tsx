@@ -15,9 +15,9 @@ const SummaryCards: React.FC<Props> = ({ transactions = [] }) => {
   const monthlyTransactions = transactions.filter(t => {
     // Handle both string and Date types for the date field
     const transactionDate = typeof t.date === 'string' ? new Date(t.date) : t.date;
-    return transactionDate && !isNaN(transactionDate.getTime()) && 
-           transactionDate >= monthStart && 
-           transactionDate <= monthEnd;
+    return transactionDate && !isNaN(transactionDate.getTime()) &&
+      transactionDate >= monthStart &&
+      transactionDate <= monthEnd;
   });
 
   const totalIncome = monthlyTransactions
@@ -68,9 +68,9 @@ const SummaryCards: React.FC<Props> = ({ transactions = [] }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {cards.map((card, index) => (
-        <div 
+        <div
           key={index}
-          className="bg-white dark:bg-[#1f2226] rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow duration-200"
+          className="bg-white dark:bg-[#1f2226] rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:scale-[1.02] hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-300 cursor-default"
         >
           <div className="flex items-center justify-between">
             <div>

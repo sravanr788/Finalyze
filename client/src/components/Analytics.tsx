@@ -43,7 +43,7 @@ const Analytics: React.FC<Props> = ({ transactions }) => {
     const processData = () => {
       try {
         const expenses = transactions.filter(t => t.type === 'expense');
-        
+
         // Category spending data
         const categoryData = expenses.reduce((acc, transaction) => {
           acc[transaction.category] = (acc[transaction.category] || 0) + transaction.amount;
@@ -95,7 +95,7 @@ const Analytics: React.FC<Props> = ({ transactions }) => {
     return (
       <div className="text-center p-8 text-red-500 dark:text-red-400">
         <p>Failed to load analytics data.</p>
-        <button 
+        <button
           onClick={() => window.location.reload()}
           className="mt-2 text-sm text-[#e05b19] hover:underline"
         >
@@ -154,7 +154,8 @@ const Analytics: React.FC<Props> = ({ transactions }) => {
         pointBackgroundColor: '#e05b19',
         pointBorderColor: '#fff',
         pointBorderWidth: 2,
-        pointRadius: 6
+        pointRadius: 6,
+        pointHoverRadius: 8
       }
     ]
   };
@@ -165,14 +166,27 @@ const Analytics: React.FC<Props> = ({ transactions }) => {
     plugins: {
       legend: {
         labels: {
-          color: document.documentElement.classList.contains('dark') ? '#fff' : '#374151'
+          color: document.documentElement.classList.contains('dark') ? '#fff' : '#374151',
+          font: {
+            family: 'Inter, sans-serif'
+          }
         }
+      },
+      tooltip: {
+        backgroundColor: document.documentElement.classList.contains('dark') ? '#1f2937' : '#fff',
+        titleColor: document.documentElement.classList.contains('dark') ? '#fff' : '#111827',
+        bodyColor: document.documentElement.classList.contains('dark') ? '#d1d5db' : '#374151',
+        borderColor: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb',
+        borderWidth: 1
       }
     },
     scales: {
       y: {
         ticks: {
-          color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280'
+          color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280',
+          font: {
+            family: 'Inter, sans-serif'
+          }
         },
         grid: {
           color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb'
@@ -180,7 +194,10 @@ const Analytics: React.FC<Props> = ({ transactions }) => {
       },
       x: {
         ticks: {
-          color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280'
+          color: document.documentElement.classList.contains('dark') ? '#9ca3af' : '#6b7280',
+          font: {
+            family: 'Inter, sans-serif'
+          }
         },
         grid: {
           color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb'
@@ -197,7 +214,7 @@ const Analytics: React.FC<Props> = ({ transactions }) => {
         </h3>
         <div className="h-64">
           {Object.keys(categoryData).length > 0 ? (
-            <Pie data={pieData} options={{ responsive: true, maintainAspectRatio: false }} />
+            <Pie data={pieData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { font: { family: 'Inter, sans-serif' } } } } }} />
           ) : (
             <div className="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
               No expense data available
@@ -208,7 +225,7 @@ const Analytics: React.FC<Props> = ({ transactions }) => {
 
       <div className="bg-white dark:bg-[#1f2226] rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          7-Day Spending Trend
+          Last 7 Days Spending Trend
         </h3>
         <div className="h-64">
           <Line data={lineData} options={chartOptions} />

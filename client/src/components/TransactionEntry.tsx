@@ -52,12 +52,12 @@ const TransactionEntry: React.FC<Props> = ({ onTransactionAdded }) => {
         };
         await saveTransaction(transaction);
       }));
-      
+
       toast.success('Transaction saved successfully');
       setInput('');
       setParsedTransaction([]);
       onTransactionAdded();
-      
+
       // Reload the page after a short delay to ensure the UI updates
       setTimeout(() => {
         window.location.reload();
@@ -88,7 +88,7 @@ const TransactionEntry: React.FC<Props> = ({ onTransactionAdded }) => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder='Try: "Bought groceries for ₹850" or "Got paid ₹15000 salary today"'
-              className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:ring-2 focus:ring-[#e05b19] focus:border-transparent bg-white dark:bg-[#16191f] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+              className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg resize-none focus:ring-2 focus:ring-[#e05b19] focus:border-transparent focus:outline-none bg-white dark:bg-[#16191f] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 transition-all duration-200"
               rows={3}
             />
           </div>
@@ -96,7 +96,7 @@ const TransactionEntry: React.FC<Props> = ({ onTransactionAdded }) => {
           <button
             onClick={handleParse}
             disabled={!input.trim() || isLoading}
-            className="flex items-center justify-center w-full py-3 px-4 bg-[#e05b19] hover:bg-[#d14d0f] disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white font-medium rounded-lg transition-colors duration-200 disabled:cursor-not-allowed"
+            className="flex items-center justify-center w-full py-3 px-4 bg-[#e05b19] hover:bg-[#d14d0f] disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white font-medium rounded-lg transition-all duration-200 disabled:cursor-not-allowed hover:shadow-md focus:ring-2 focus:ring-[#e05b19] focus:ring-offset-2"
           >
             {isLoading ? (
               <LoadingSpinner size="sm" className="text-white" />
@@ -117,10 +117,10 @@ const TransactionEntry: React.FC<Props> = ({ onTransactionAdded }) => {
                   Transaction {idx + 1}
                 </h3>
                 <span className={`px-2 py-1 rounded-full text-xs font-medium ${tx.confidence > 0.8
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                    : tx.confidence > 0.6
-                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                  : tx.confidence > 0.6
+                    ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
                   }`}>
                   {Math.round(tx.confidence * 100)}% confidence
                 </span>
@@ -130,8 +130,8 @@ const TransactionEntry: React.FC<Props> = ({ onTransactionAdded }) => {
                 <div>
                   <span className="text-gray-500 dark:text-gray-400">Amount:</span>
                   <p className={`font-medium ${tx.type === 'income'
-                      ? 'text-green-600 dark:text-green-400'
-                      : 'text-red-600 dark:text-red-400'
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-red-600 dark:text-red-400'
                     }`}>
                     {tx.type === 'income' ? '+' : '-'}₹{tx.amount.toFixed(2)}
                   </p>
@@ -152,14 +152,14 @@ const TransactionEntry: React.FC<Props> = ({ onTransactionAdded }) => {
           <div className="flex space-x-3">
             <button
               onClick={handleSave}
-              className="flex-1 flex items-center justify-center py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200"
+              className="flex-1 flex items-center justify-center py-3 px-4 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 hover:shadow-md focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
             >
               <Check className="h-5 w-5 mr-2" />
               Save Transaction
             </button>
             <button
               onClick={handleCancel}
-              className="flex-1 flex items-center justify-center py-3 px-4 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-lg transition-colors duration-200"
+              className="flex-1 flex items-center justify-center py-3 px-4 bg-gray-500 hover:bg-gray-600 text-white font-medium rounded-lg transition-all duration-200 hover:shadow-md focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
             >
               <X className="h-5 w-5 mr-2" />
               Cancel

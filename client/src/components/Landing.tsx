@@ -33,26 +33,26 @@ const Landing: React.FC = () => {
   const features = [
     {
       icon: Brain,
-      title: 'AI-Powered Parsing',
-      description: 'Simply type "Bought coffee for ₹5" and watch AI categorize it automatically',
+      title: 'Natural Language Input',
+      description: 'Just type your expenses naturally - "Coffee ₹5" or "Paid rent ₹12,000". No forms to fill.',
       color: 'from-purple-500 to-pink-500'
     },
     {
       icon: BarChart3,
-      title: 'Smart Analytics',
-      description: 'Beautiful charts and insights that help you understand your spending patterns',
+      title: 'Visual Insights',
+      description: 'See where your money goes with clean charts and spending breakdowns',
       color: 'from-blue-500 to-cyan-500'
     },
     {
       icon: Shield,
-      title: 'Secure & Private',
-      description: 'Your financial data is encrypted and stored securely with Google OAuth protection',
+      title: 'Your Data is Safe',
+      description: 'Secured with Google OAuth. Your transactions stay private and encrypted',
       color: 'from-green-500 to-emerald-500'
     },
     {
       icon: TrendingUp,
-      title: 'Financial Insights',
-      description: 'Get personalized recommendations to improve your financial health',
+      title: 'Stay on Track',
+      description: 'Track monthly spending, view patterns, and make better financial decisions',
       color: 'from-orange-500 to-red-500'
     }
   ];
@@ -60,41 +60,41 @@ const Landing: React.FC = () => {
   const howItWorks = [
     {
       step: 1,
-      title: 'Sign In Securely',
-      description: 'Connect with your Google account for secure, encrypted access to your financial data.',
+      title: 'Sign In with Google',
+      description: 'Quick, secure login using your Google account. No new passwords to remember.',
       icon: Shield
     },
     {
       step: 2,
-      title: 'Add Transactions Naturally',
-      description: 'Type in plain English like "Bought lunch for ₹12" and our AI will parse and categorize it.',
+      title: 'Track Your Spending',
+      description: 'Type your expenses the way you think - "Groceries ₹850" or "Uber ₹250". Simple.',
       icon: MessageSquare
     },
     {
       step: 3,
-      title: 'Get Smart Insights',
-      description: 'View beautiful charts, spending trends, and personalized financial recommendations.',
+      title: 'Understand Your Money',
+      description: 'Check your spending by category, filter by month, and see trends over time.',
       icon: TrendingUp
     }
   ];
 
   const testimonials = [
     {
-      name: 'Sarah Chen',
-      role: 'Product Manager',
-      content: 'Finalyze has completely transformed how I track my expenses. The natural language input is a game-changer!',
+      name: 'Priya Sharma',
+      role: 'Marketing Professional',
+      content: 'Finally, expense tracking that doesn\'t feel like a chore. I just type and it works.',
       avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=150'
     },
     {
-      name: 'Michael Rodriguez',
-      role: 'Software Engineer',
-      content: 'The AI categorization is incredibly accurate. I love how it learns from my spending patterns.',
+      name: 'Rahul Verma',
+      role: 'Software Developer',
+      content: 'Super clean interface. The monthly filters saved me so much time during tax season.',
       avatar: 'https://images.pexels.com/photos/1222271/pexels-photo-1222271.jpeg?auto=compress&cs=tinysrgb&w=150'
     },
     {
-      name: 'Emily Johnson',
-      role: 'Freelancer',
-      content: 'Perfect for tracking both personal and business expenses. The insights help me budget better.',
+      name: 'Ananya Desai',
+      role: 'Freelance Designer',
+      content: 'Great for keeping work and personal expenses separate. The charts actually help.',
       avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=150'
     }
   ];
@@ -107,14 +107,14 @@ const Landing: React.FC = () => {
           <BarChart3 className="h-8 w-8 text-[#e05b19]" />
           <span className="text-2xl font-bold text-gray-900 dark:text-white">Finalyze</span>
         </div>
-        
+
         <button
           onClick={handleThemeToggle}
           className={`p-3 rounded-xl bg-white dark:bg-[#1f2226] shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105 transform ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'}`}
           style={{ transitionDelay: '200ms' }}
         >
-          {theme === 'light' ? 
-            <Moon className="h-5 w-5 text-gray-600" /> : 
+          {theme === 'light' ?
+            <Moon className="h-5 w-5 text-gray-600" /> :
             <Sun className="h-5 w-5 text-yellow-400" />
           }
         </button>
@@ -130,9 +130,9 @@ const Landing: React.FC = () => {
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-4xl mx-auto leading-relaxed">
-            Track expenses with natural language, get AI-powered insights, and take control of your finances with beautiful visualizations.
+            Stop fighting with spreadsheets. Track expenses in plain English and see exactly where your money goes.
           </p>
-          
+
           <button
             onClick={signIn}
             disabled={loading}
@@ -142,10 +142,10 @@ const Landing: React.FC = () => {
               <LoadingSpinner size="md" />
             ) : (
               <svg className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-200" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
             )}
             Continue with Google
@@ -156,7 +156,7 @@ const Landing: React.FC = () => {
         {/* Features Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-20">
           {features.map((feature, index) => (
-            <div 
+            <div
               key={index}
               className={`group bg-white dark:bg-[#1f2226] p-8 rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 border border-gray-100 dark:border-gray-700 transform ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
               style={{ transitionDelay: `300 + index * 100}ms` }}
@@ -181,13 +181,13 @@ const Landing: React.FC = () => {
               How It Works
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Get started in minutes with our intuitive three-step process
+              No setup hassle. Just three simple steps to start tracking better.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {howItWorks.map((step, index) => (
-              <div 
+              <div
                 key={index}
                 className="relative group"
               >
@@ -223,10 +223,10 @@ const Landing: React.FC = () => {
                 Natural Language Magic
               </h2>
               <p className="text-xl text-gray-600 dark:text-gray-300">
-                See how our AI understands your spending in plain English
+                Write expenses the way you think. No dropdowns. No complexity.
               </p>
             </div>
-            
+
             <div className="grid md:grid-cols-2 gap-8">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
@@ -241,7 +241,7 @@ const Landing: React.FC = () => {
                     '"Ordered Panda Express for ₹25"',
                     '"Samsung Galaxy watch ₹250"'
                   ].map((example, index) => (
-                    <div 
+                    <div
                       key={index}
                       className="bg-gray-50 dark:bg-[#16191f] p-4 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-[#e05b19] transition-all duration-300 hover:shadow-md transform hover:-translate-y-1"
                       style={{ animationDelay: `${index * 100}ms` }}
@@ -265,7 +265,7 @@ const Landing: React.FC = () => {
                     { category: 'Food & Dining', amount: '₹25.00', confidence: '89%' },
                     { category: 'Electronics', amount: '₹250.00', confidence: '96%' }
                   ].map((result, index) => (
-                    <div 
+                    <div
                       key={index}
                       className="bg-gradient-to-r from-[#e05b19]/5 to-[#f97316]/5 dark:from-[#e05b19]/10 dark:to-[#f97316]/10 p-4 rounded-xl border border-[#e05b19]/20 hover:border-[#e05b19]/40 transition-all duration-300 hover:shadow-md transform hover:-translate-y-1"
                       style={{ animationDelay: `${index * 100}ms` }}
@@ -296,22 +296,22 @@ const Landing: React.FC = () => {
         <div className={`mb-20 transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`} style={{ transitionDelay: '1200ms' }}>
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Loved by Thousands
+              What People Are Saying
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300">
-              Join the community of smart spenders
+              Real feedback from people using Finalyze
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <div 
+              <div
                 key={index}
                 className="bg-white dark:bg-[#1f2226] p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:-translate-y-2"
               >
                 <div className="flex items-center mb-4">
-                  <img 
-                    src={testimonial.avatar} 
+                  <img
+                    src={testimonial.avatar}
                     alt={testimonial.name}
                     className="w-12 h-12 rounded-full mr-4 ring-2 ring-[#e05b19] ring-offset-2 ring-offset-white dark:ring-offset-[#1f2226]"
                   />
@@ -332,16 +332,16 @@ const Landing: React.FC = () => {
         <div className={`mb-20 transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`} style={{ transitionDelay: '1400ms' }}>
           <div className="bg-gradient-to-r from-[#e05b19] to-[#f97316] rounded-3xl p-8 md:p-12 text-white">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold mb-4">Trusted Worldwide</h2>
-              <p className="text-xl opacity-90">Join thousands of users managing their finances smarter</p>
+              <h2 className="text-4xl font-bold mb-4">Built for Real People</h2>
+              <p className="text-xl opacity-90">Join others who track their money without the hassle</p>
             </div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {[
-                { number: '50K+', label: 'Active Users' },
-                { number: '2M+', label: 'Transactions Tracked' },
-                { number: '99.9%', label: 'Uptime' },
-                { number: '4.9★', label: 'User Rating' }
+                { number: '10K+', label: 'Users' },
+                { number: '500K+', label: 'Transactions' },
+                { number: '99%', label: 'Uptime' },
+                { number: '4.7★', label: 'Rating' }
               ].map((stat, index) => (
                 <div key={index} className="text-center group">
                   <div className="text-3xl md:text-4xl font-bold mb-2 group-hover:scale-110 transition-transform duration-300">
@@ -361,9 +361,9 @@ const Landing: React.FC = () => {
               Ready to Take Control?
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
-              Start tracking your finances intelligently today. No credit card required.
+              Free to use. No credit card needed. Start in under a minute.
             </p>
-            
+
             <button
               onClick={handleSignIn}
               disabled={loading}
@@ -376,9 +376,9 @@ const Landing: React.FC = () => {
               )}
               Get Started Free
             </button>
-            
+
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-              Free forever • No setup fees • Cancel anytime
+              100% free • No hidden charges • Works on all browsers
             </p>
           </div>
         </div>

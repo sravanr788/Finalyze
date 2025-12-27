@@ -26,20 +26,21 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white dark:bg-[#1f2226] shadow-sm border-b sticky top-0 border-gray-200 dark:border-gray-700">
+    <header className="bg-white dark:bg-[#1f2226] shadow-sm border-b sticky top-0 border-gray-200 dark:border-gray-700 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link to="/">
-          <div className="flex items-center space-x-3">
-            <BarChart3 className="h-8 w-8 text-[#e05b19]" />
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">Finalyze</span>
-          </div>
+            <div className="flex items-center space-x-3">
+              <BarChart3 className="h-8 w-8 text-[#e05b19]" />
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">Finalyze</span>
+            </div>
           </Link>
 
           <div className="flex items-center space-x-4">
             <button
               onClick={handleThemeToggle}
-              className="p-2 rounded-lg bg-gray-100 dark:bg-[#16191f] hover:bg-gray-200 dark:hover:bg-[#2a2d33] transition-colors duration-200"
+              className="p-2 rounded-lg bg-gray-100 dark:bg-[#16191f] hover:bg-gray-200 dark:hover:bg-[#2a2d33] focus:ring-2 focus:ring-[#e05b19] focus:ring-offset-2 transition-all duration-200 hover:scale-105"
+              aria-label="Toggle theme"
             >
               {theme === 'light' ?
                 <Moon className="h-5 w-5 text-gray-600 dark:text-gray-300" /> :
@@ -63,7 +64,8 @@ const Header: React.FC = () => {
                 <button
                   title='signout'
                   onClick={handleSignOut}
-                  className="p-2 rounded-lg bg-gray-100 dark:bg-[#16191f] hover:bg-gray-200 dark:hover:bg-[#2a2d33] transition-colors duration-200"
+                  className="p-2 rounded-lg bg-gray-100 dark:bg-[#16191f] hover:bg-gray-200 dark:hover:bg-[#2a2d33] focus:ring-2 focus:ring-[#e05b19] focus:ring-offset-2 transition-all duration-200 hover:scale-105"
+                  aria-label="Sign out"
                 >
                   <LogOut className="h-5 w-5 text-gray-600 dark:text-gray-300" />
                 </button>

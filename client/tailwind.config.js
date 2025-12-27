@@ -4,10 +4,16 @@ export default {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
+      },
       animation: {
         'fade-in': 'fadeIn 0.6s ease-out forwards',
         'slide-up': 'slideUp 0.8s ease-out forwards',
         'bounce-in': 'bounceIn 1s ease-out forwards',
+      },
+      transitionDuration: {
+        '400': '400ms',
       },
       keyframes: {
         fadeIn: {
