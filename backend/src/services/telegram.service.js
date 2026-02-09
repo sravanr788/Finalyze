@@ -21,41 +21,19 @@ import * as transactionController from '../controllers/telegramTransaction.contr
 
 class TelegramService {
     constructor() {
-        this.bot = null;
-        this.isInitialized = false;
+        this.bot = new Telegraf(telegramConfig.botToken);
+
+        this.bot.catch((err, ctx) => {
+            console.error('❌ Telegram bot error:', err);
+        });
+
+        this.bot.use(getTelegramUser);
+
+        this.registerHandlers();
+
+        console.log('✅ Telegram bot initialized at module load');
     }
 
-    /**
-     * Initialize the Telegram bot instance
-     */
-    initialize() {
-        if (this.isInitialized) {
-            console.warn('⚠️ Telegram bot already initialized');
-            return;
-        }
-
-        try {
-            this.bot = new Telegraf(telegramConfig.botToken);
-
-            // Global error handler
-            this.bot.catch((err, ctx) => {
-                console.error('❌ Telegram bot error:', err);
-                console.error('Context:', ctx.update);
-            });
-
-            // Apply authentication middleware to all updates
-            this.bot.use(getTelegramUser);
-
-            // Register handlers
-            this.registerHandlers();
-
-            this.isInitialized = true;
-            console.log('✅ Telegram bot initialized successfully');
-        } catch (error) {
-            console.error('❌ Failed to initialize Telegram bot:', error);
-            throw error;
-        }
-    }
 
     /**
      * Register all command handlers and button actions
@@ -63,9 +41,16 @@ class TelegramService {
     registerHandlers() {
         // /start command - Entry point
         this.bot.on('message', async (ctx) => {
-            console.log('🔥 Incoming message:', ctx.message.text);
-            await ctx.reply('Bot is alive.');
+            if (!ctx.message.text.startsWith('/')) {
+                await ctx.reply(
+                    'Please use the menu below 👇',
+                    keyboards.getMainMenuKeyboard()
+                );
+            }
+            console.log('Incoming update:', JSON.stringify(ctx.update, null, 2));
+
         });
+
 
         this.bot.command('start', async (ctx) => {
             const userName = ctx.from.first_name || 'there';
@@ -682,9 +667,6 @@ class TelegramService {
      * Start bot in polling mode (development only)
      */
     async startPolling() {
-        if (!this.isInitialized) {
-            throw new Error('Bot not initialized. Call initialize() first.');
-        }
 
         if (!telegramConfig.usePolling) {
             throw new Error('Polling mode is only available in development');
@@ -713,12 +695,7 @@ class TelegramService {
      */
     async handleUpdate(update) {
         try {
-            if (!this.isInitialized) {
-                console.log('⚡ Lazy initializing Telegram bot...');
-                this.initialize();
-            }
-
-            await this.bot.handleUpdate(update);
+             await this.bot.handleUpdate(update);
         } catch (error) {
             console.error('❌ Error handling webhook update:', error);
         }
@@ -728,14 +705,12 @@ class TelegramService {
      * Graceful shutdown
      */
     async stop() {
-        if (this.bot && this.isInitialized) {
             try {
                 await this.bot.stop();
                 console.log('✅ Telegram bot stopped gracefully');
             } catch (error) {
                 console.error('❌ Error stopping bot:', error);
             }
-        }
     }
 }
 

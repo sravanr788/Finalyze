@@ -31,30 +31,17 @@ const router = express.Router();
  */
 router.post('/webhook', async (req, res) => {
     try {
-        // Log incoming webhook (useful for debugging)
         console.log('📨 Telegram webhook received');
 
-        // Immediately send 200 OK to Telegram
-        // This is CRITICAL - Telegram expects fast responses
-        res.status(200).send('OK');
+        await telegramService.handleUpdate(req.body);
 
-        // Process the update asynchronously (after response is sent)
-        // This prevents blocking the response if bot logic is slow
-        setImmediate(async () => {
-            try {
-                await telegramService.handleUpdate(req.body);
-            } catch (error) {
-                // Log error but don't throw - response already sent
-                console.error('❌ Error processing Telegram update:', error);
-            }
-        });
-
+        return res.status(200).send('OK');
     } catch (error) {
-        // Even if there's an error, return 200 to prevent Telegram retries
-        console.error('❌ Error in webhook route:', error);
-        res.status(200).send('OK');
+        console.error('❌ Error processing Telegram update:', error);
+        return res.status(200).send('OK');
     }
 });
+
 
 /**
  * GET /api/telegram/webhook
