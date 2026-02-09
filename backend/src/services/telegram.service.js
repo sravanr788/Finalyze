@@ -62,6 +62,11 @@ class TelegramService {
      */
     registerHandlers() {
         // /start command - Entry point
+        this.bot.on('message', async (ctx) => {
+            console.log('🔥 Incoming message:', ctx.message.text);
+            await ctx.reply('Bot is alive.');
+        });
+
         this.bot.command('start', async (ctx) => {
             const userName = ctx.from.first_name || 'there';
 
@@ -702,47 +707,20 @@ class TelegramService {
         }
     }
 
-    /**
-     * Register webhook in production mode
-     */
-    async registerWebhook() {
-        if (!this.isInitialized) {
-            throw new Error('Bot not initialized. Call initialize() first.');
-        }
-
-        if (!telegramConfig.useWebhook) {
-            throw new Error('Webhook mode is only available in production');
-        }
-
-        try {
-            await this.bot.telegram.setWebhook(telegramConfig.webhookUrl);
-
-            console.log('✅ Telegram webhook registered successfully');
-            console.log(`   Webhook URL: ${telegramConfig.webhookUrl}`);
-
-            const webhookInfo = await this.bot.telegram.getWebhookInfo();
-            console.log('📊 Webhook Info:');
-            console.log(`   URL: ${webhookInfo.url}`);
-            console.log(`   Pending updates: ${webhookInfo.pending_update_count}`);
-        } catch (error) {
-            console.error('❌ Failed to register webhook:', error);
-            throw error;
-        }
-    }
 
     /**
      * Handle incoming webhook update (production mode)
      */
     async handleUpdate(update) {
-        if (!this.isInitialized) {
-            throw new Error('Bot not initialized. Call initialize() first.');
-        }
-
         try {
+            if (!this.isInitialized) {
+                console.log('⚡ Lazy initializing Telegram bot...');
+                this.initialize();
+            }
+
             await this.bot.handleUpdate(update);
         } catch (error) {
             console.error('❌ Error handling webhook update:', error);
-            throw error;
         }
     }
 

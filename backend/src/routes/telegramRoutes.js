@@ -16,6 +16,7 @@
  */
 
 import express from 'express';
+import telegramConfig from '../config/telegram.config.js';
 import telegramService from '../services/telegram.service.js';
 
 const router = express.Router();
