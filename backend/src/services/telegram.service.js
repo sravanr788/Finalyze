@@ -40,17 +40,6 @@ class TelegramService {
      */
     registerHandlers() {
         // /start command - Entry point
-        this.bot.on('message', async (ctx) => {
-            if (!ctx.message.text.startsWith('/')) {
-                await ctx.reply(
-                    'Please use the menu below 👇',
-                    keyboards.getMainMenuKeyboard()
-                );
-            }
-            console.log('Incoming update:', JSON.stringify(ctx.update, null, 2));
-
-        });
-
 
         this.bot.command('start', async (ctx) => {
             const userName = ctx.from.first_name || 'there';
@@ -673,7 +662,9 @@ class TelegramService {
         }
 
         try {
-            await this.bot.launch();
+            await this.bot.launch({
+                dropPendingUpdates: true,
+            });
             console.log('✅ Telegram bot started in DEVELOPMENT mode (polling)');
         } catch (error) {
             if (error.response && error.response.error_code === 409) {

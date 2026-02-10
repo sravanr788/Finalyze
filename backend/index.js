@@ -11,6 +11,8 @@ import authRoutes from './src/routes/authRoutes.js';
 import analyticsRoutes from './src/routes/analyticsRoutes.js';
 import transactionRoutes from './src/routes/TransactionRoutes.js';
 import telegramRoutes from './src/routes/telegramRoutes.js';
+import telegramService from './src/services/telegram.service.js';
+import telegramConfig from './src/config/telegram.config.js';
 
 
 const app = express();
@@ -38,4 +40,11 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/telegram', telegramRoutes);
 
+app.listen(process.env.PORT,async()=>{
+  console.log(`Server started listening on ${process.env.PORT}`)
+
+  if (telegramConfig.usePolling) {
+    await telegramService.startPolling();
+  }
+})
 export default app;
