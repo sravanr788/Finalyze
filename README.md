@@ -1,4 +1,4 @@
-# Finalyze 💰  
+#  💰Finalyze
 An intelligent finance tracker that combines **Google OAuth authentication**, **AI-powered natural language transaction entry**, and a **beautiful modern UI** to help users analyze spending patterns and gain financial insights.  
 
 ---
@@ -53,10 +53,15 @@ An intelligent finance tracker that combines **Google OAuth authentication**, **
 
 ## 📂 Project Structure  
 Finalyze/
+
 ├── client/ # React frontend
+
 ├── backend/ # Express backend
+
 ├── docs/ # Documentation + screenshots
+
 ├── README.md # Setup & project guide
+
 └── .env.example # Backend environment template
 
 
@@ -68,21 +73,26 @@ Finalyze/
 ```bash
 git clone https://github.com/your-username/finalyze.git
 cd finalyze
+```
 
 🖥 Frontend Setup
+```bash
 cd client
 npm install
 npm run dev
+```
 
 ⚙️ Backend Setup
+```bash
 cd backend/src
 npm install
 npm start
-
-🔑 Environment Variables
+```
+### 🔑 Environment Variables
 
 Create a .env file in backend/src/ with the following:
 
+```bash
 GROQ_API_KEY=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
@@ -90,42 +100,11 @@ MONGO_URI=
 PORT=5000
 REFRESH_TOKEN_SECRET=
 JWT_SECRET=
-
-
+```
 (See .env.example for reference.)
 
-📡 API Endpoints
-Authentication
 
-POST /auth/google → Google OAuth callback
-
-POST /auth/refresh → Refresh JWT token
-
-POST /auth/logout → Logout user
-
-GET /auth/profile → Get user profile
-
-Transactions
-
-POST /api/transactions/parse → Parse natural language input
-
-POST /api/transactions → Create transaction
-
-GET /api/transactions → Get transactions (with filters)
-
-PUT /api/transactions/:id → Update transaction
-
-DELETE /api/transactions/:id → Delete transaction
-
-Analytics
-
-GET /api/analytics/summary → Financial summary
-
-GET /api/analytics/categories → Spending by category
-
-GET /api/analytics/trends → Spending trends
-
-🧪 Sample Inputs for Testing
+### 🧪 Sample Inputs for Testing
 
 "Coffee at Starbucks $6.50"
 
@@ -141,19 +120,14 @@ GET /api/analytics/trends → Spending trends
 
 "Groceries $120 and Netflix $15.99 yesterday"
 
-📸 Screenshots
+## 🚀 Deployment
 
-(Add screenshots of your UI in the docs/ folder and reference them here.)
+Deployed on Vercel:
 
-🚀 Success Indicators
+### Live Link: [Finalyze](https://finalyzeai.vercel.app/)
 
-✅ Secure Google OAuth login
-✅ AI-powered smart transaction parsing
-✅ Interactive charts & insights
-✅ Dark/light mode support
-✅ Responsive, modern UI with animations
 
-🙌 Credits
+### 🙌 Credits
 
 Design Inspiration: Credit Karma, Mint
 
