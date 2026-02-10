@@ -2,41 +2,49 @@ import { config } from 'dotenv';
 config();
 
 import express from 'express';
-import mongoose from 'mongoose';
 import passport from 'passport';
 import cors from 'cors';
-import session from 'express-session';
 import cookieParser from 'cookie-parser';
 
+// Routes
 import authRoutes from './src/routes/authRoutes.js';
 import analyticsRoutes from './src/routes/analyticsRoutes.js';
 import transactionRoutes from './src/routes/TransactionRoutes.js';
+import telegramRoutes from './src/routes/telegramRoutes.js';
+import telegramService from './src/services/telegram.service.js';
+import telegramConfig from './src/config/telegram.config.js';
+
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// Middleware
+/* -------------------------------------------------------------------------- */
+/*                                MIDDLEWARE                                  */
+/* -------------------------------------------------------------------------- */
+
 app.use(cors({
-    origin: ['http://localhost:3000',process.env.FRONTEND_URL],
-    credentials: true,
+  origin: ['http://localhost:3000', process.env.FRONTEND_URL],
+  credentials: true,
 }));
+
 app.use(express.json());
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'default-secret',
-    resave: false,
-    saveUninitialized: true,
-}));
-
 app.use(cookieParser());
-app.use(passport.initialize());
-app.use(passport.session());
 
-// Route handlers
+app.use(passport.initialize());
+
+/* -------------------------------------------------------------------------- */
+/*                                   ROUTES                                   */
+/* -------------------------------------------------------------------------- */
+
 app.use('/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/telegram', telegramRoutes);
 
-// Server Setup
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+app.listen(process.env.PORT,async()=>{
+  console.log(`Server started listening on ${process.env.PORT}`)
+
+  if (telegramConfig.usePolling) {
+    await telegramService.startPolling();
+  }
+})
+export default app;
